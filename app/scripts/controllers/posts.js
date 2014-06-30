@@ -1,18 +1,37 @@
 'use strict';
 
-app.controller('PostsCtrl', function($scope, Post){
-	$scope.posts = [];
-	$scope.post = {url: 'http://', title: ''};
-	
-	$scope.submitPost = function () {
-		Post.save($scope.post, function(ref){
-			$scope.posts[ref.name] = $scope.post;
-			$scope.post = {url: 'http://', title: ''};
-		});
-	};
-	
-	$scope.deletePost = function (index) {
-		$scope.posts.splice(index, 1);
-	};
-	
+app.controller('PostsCtrl', function ($scope, $location, Post) {
+  if ($location.path() === '/') {
+    $scope.posts = Post.all;
+  }
+
+  $scope.post = {url: 'http://', title: ''};
+
+  $scope.deletePost = function(postId) {
+    Post.delete(postId);
+  };
+
+  $scope.upVotePost = function (postId, upVoted) {
+    if (upVoted) {
+      Post.clearVote(postId, upVoted);
+    } else {
+      Post.upVote(postId);
+    }
+  };
+
+  $scope.downVotePost = function (postId, downVoted) {
+    if (downVoted) {
+      Post.clearVote(postId, !downVoted);
+    } else {
+      Post.downVote(postId);
+    }
+  };
+
+  $scope.upVoted = function (post) {
+    return Post.upVoted(post);
+  };
+
+  $scope.downVoted = function (post) {
+    return Post.downVoted(post);
+  };
 });
